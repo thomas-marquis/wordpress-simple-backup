@@ -34,6 +34,8 @@ var saveCmd = &cobra.Command{
 		}
 
 		app := common.GetBackupApp(
+			argsVal.Name,
+			10,
 			argsVal.DbUsername,
 			argsVal.DbPassword,
 			argsVal.DbContainer,
@@ -44,7 +46,7 @@ var saveCmd = &cobra.Command{
 			argsVal.S3Bucket,
 		)
 
-		err := app.Save(argsVal.Name)
+		err := app.Save()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -54,7 +56,4 @@ var saveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(saveCmd)
-	for _, arg := range common.CommonArgs {
-		saveCmd.Flags().StringP(arg.Name, arg.Short, "", arg.Description)
-	}
 }

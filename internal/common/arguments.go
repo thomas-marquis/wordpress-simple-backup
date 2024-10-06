@@ -1,6 +1,8 @@
 package common
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 type Arg struct {
 	Name        string
@@ -58,4 +60,9 @@ func ParseCommonArgs(cmd *cobra.Command) (CommonArgsValues, error) {
 		S3AccessKeyId:     s3AccessKeyId,
 		S3SecretAccessKey: s3SecretAccessKey,
 	}, nil
+}
+
+func SetupCommonArgs(cmd *cobra.Command) {
+	pf := cmd.PersistentFlags()
+	pf.StringP("config", "c", "", "config file (default is $HOME/.wsb.yaml)")
 }

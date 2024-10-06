@@ -21,24 +21,22 @@ func NewMariaDbImpl(u, p, c string) *MariaDbImpl {
 }
 
 // BackupDatabaseFromDocker creates a backup of the database from the given container
-func (db *MariaDbImpl) BackupDatabaseFromDocker(backupName string) (string, error) {
-	dumpFilePath := fmt.Sprintf("%s.sql", backupName)
+func (db *MariaDbImpl) BackupDatabaseFromDocker(backupPath string) error {
 	cmd := exec.Command("docker", "exec", db.containerName, "mariadb-dump", "--all-databases", fmt.Sprintf("-u%s", db.username), fmt.Sprintf("-p%s", db.password))
-	db.logger.Printf("Running command: %s\n", cmd.String())
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 
 	output, err := cmd.Output()
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	err = os.WriteFile(dumpFilePath, output, 0644)
+	err = os.WriteFile(backupPath, output, 0644)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return dumpFilePath, nil
+	return nil
 }
 
 // RestoreDatabaseFromDocker restores the database from the given dump file
@@ -48,9 +46,13 @@ func (db *MariaDbImpl) RestoreDatabaseFromDocker(dumpFilePath string) error {
 		return fmt.Errorf("dump file %s does not exists", dumpFilePath)
 	}
 
-	restoreCmd := fmt.Sprintf("mysql -u%s -p%s", db.username, db.password)
-	cmd := exec.Command("docker", "exec", "-i", db.containerName, "sh", "-c", fmt.Sprintf("'%s'", restoreCmd), "<", dumpFilePath)
-	cmd.Stdin = os.Stdin
+	restoreCmd := fmt.Sprintf("exec mariadb -u%s -p%s", db.username, db.password)
+	dumpFile, err := os.Open(dumpFilePath)
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command("docker", "exec", "-i", db.containerName, "sh", "-c", restoreCmd)
+	cmd.Stdin = dumpFile
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

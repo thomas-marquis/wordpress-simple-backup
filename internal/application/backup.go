@@ -2,41 +2,21 @@ package application
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/thomas-marquis/wordpress-simple-backup/internal/core"
 )
 
 type BackupApplication struct {
-	repo core.Repository
+	repo           core.Repository
+	versionsToKeep int
 }
 
-func NewBackupApplication(repo core.Repository) *BackupApplication {
+func NewBackupApplication(repo core.Repository, keep int) *BackupApplication {
 	return &BackupApplication{
-		repo: repo,
+		repo:           repo,
+		versionsToKeep: keep,
 	}
-}
-
-func (a *BackupApplication) Save(name string) error {
-	existingBackup, err := a.repo.GetExistingBackup(name)
-	if err != nil {
-		return errors.New("an error occurred when getting previous backup")
-	}
-
-	newVersion, err := a.repo.CreateNewBackupVersion(name)
-	if err != nil {
-		return errors.New("an error occurred when creating new backup version")
-	}
-
-	if !newVersion.AreLocalBackupsAllReady() {
-		return errors.New("backup files are not ready")
-	}
-
-	existingBackup.AddVersion(*newVersion)
-
-	if err := a.repo.SaveBackup(existingBackup); err != nil {
-		return errors.New("an error occurred when saving backup")
-	}
-	return nil
 }
 
 func (a *BackupApplication) Restore(backupName string, versionID int) error {

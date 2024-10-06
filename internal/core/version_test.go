@@ -20,10 +20,12 @@ func Test_AreLocalBackupsAllReady_ShouldReturnTrueWhenBothFilesExist(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.Remove(contentFile.Name())
 
-	v := core.NewVersion(1)
-	v.WithLocalDbBackupFile(dbFile.Name())
-	v.WithLocalContentBackupFile(contentFile.Name())
+	content := core.NewDumpFile(contentFile.Name())
+	db := core.NewDumpFile(dbFile.Name())
+
+	v := core.NewVersion(1, db, content)
 
 	// When
 	result := v.AreLocalBackupsAllReady()
@@ -40,8 +42,10 @@ func Test_AreLocalBackupsAllReady_ShouldReturnFalseWhenDbFileIsMissing(t *testin
 	}
 	defer os.Remove(contentFile.Name())
 
-	v := core.NewVersion(1)
-	v.WithLocalContentBackupFile(contentFile.Name())
+	content := core.NewDumpFile(contentFile.Name())
+	db := core.NewDumpFile("fakepath")
+
+	v := core.NewVersion(1, db, content)
 
 	// When
 	result := v.AreLocalBackupsAllReady()
@@ -58,8 +62,10 @@ func Test_AreLocalBackupsAllReady_ShouldReturnFalseWhenContentFileIsMissing(t *t
 	}
 	defer os.Remove(dbFile.Name())
 
-	v := core.NewVersion(1)
-	v.WithLocalDbBackupFile(dbFile.Name())
+	content := core.NewDumpFile("fakepath")
+	db := core.NewDumpFile(dbFile.Name())
+
+	v := core.NewVersion(1, db, content)
 
 	// When
 	result := v.AreLocalBackupsAllReady()

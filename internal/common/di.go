@@ -6,6 +6,8 @@ import (
 )
 
 func GetBackupApp(
+	siteName string,
+	versionsToKeep int,
 	dbUsername string,
 	dbPassword string,
 	dbContainer string,
@@ -15,11 +17,13 @@ func GetBackupApp(
 	s3Region string,
 	s3Bucket string,
 ) *application.BackupApplication {
+	s3, _ := infrastructure.NewS3Impl(s3AccessKey, s3SecretKey, s3Region, s3Bucket, "")
 	repo := infrastructure.NewBackupRepositoryImpl(
+		siteName,
 		infrastructure.NewWordPressImpl(wpContentPath),
-		infrastructure.NewS3Impl(s3AccessKey, s3SecretKey, s3Region, s3Bucket),
+		s3,
 		infrastructure.NewMariaDbImpl(dbUsername, dbPassword, dbContainer),
 	)
-	app := application.NewBackupApplication(repo)
+	app := application.NewBackupApplication(repo, versionsToKeep)
 	return app
 }

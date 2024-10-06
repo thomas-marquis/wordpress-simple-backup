@@ -1,22 +1,30 @@
 package core
 
 import (
-	"os"
+	"strconv"
 	"time"
 )
 
-type Version struct {
-	ID        int
-	CreatedAt time.Time
+type VersionID int
 
-	localBackupDbPath      string
-	localBackupContentPath string
+func (v VersionID) String() string {
+	return strconv.Itoa(int(v))
 }
 
-func NewVersion(id int) *Version {
+type Version struct {
+	ID        VersionID
+	CreatedAt time.Time
+
+	dbDump      DumpFile
+	contentDump DumpFile
+}
+
+func NewVersion(id VersionID, db, content DumpFile) *Version {
 	return &Version{
-		ID:        id,
-		CreatedAt: time.Now(),
+		ID:          id,
+		CreatedAt:   time.Now(),
+		dbDump:      db,
+		contentDump: content,
 	}
 }
 
@@ -24,33 +32,14 @@ func (v *Version) Age() time.Duration {
 	return time.Since(v.CreatedAt)
 }
 
-func (v *Version) WithLocalDbBackupFile(path string) {
-	v.localBackupDbPath = path
+func (v *Version) DbBackupFile() DumpFile {
+	return v.dbDump
 }
 
-func (v *Version) WithLocalContentBackupFile(path string) {
-	v.localBackupContentPath = path
-}
-
-func (v *Version) LocalDbBackupFilePath() string {
-	return v.localBackupDbPath
-}
-
-func (v *Version) LocalContentBackupFilePath() string {
-	return v.localBackupContentPath
+func (v *Version) ContentBackupFile() DumpFile {
+	return v.contentDump
 }
 
 func (v *Version) AreLocalBackupsAllReady() bool {
-	var dbExists, contentExists bool
-	_, err := os.Stat(v.localBackupDbPath)
-	if err == nil {
-		dbExists = true
-	}
-
-	_, err = os.Stat(v.localBackupContentPath)
-	if err == nil {
-		contentExists = true
-	}
-
-	return contentExists && dbExists
+	return v.dbDump.Exists() && v.contentDump.Exists()
 }

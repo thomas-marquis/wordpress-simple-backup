@@ -39,60 +39,89 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CreateNewBackupVersion mocks base method.
-func (m *MockRepository) CreateNewBackupVersion(arg0 string) (*core.Version, error) {
+// ClearDump mocks base method.
+func (m *MockRepository) ClearDump(arg0 core.DumpFile) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateNewBackupVersion", arg0)
-	ret0, _ := ret[0].(*core.Version)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateNewBackupVersion indicates an expected call of CreateNewBackupVersion.
-func (mr *MockRepositoryMockRecorder) CreateNewBackupVersion(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewBackupVersion", reflect.TypeOf((*MockRepository)(nil).CreateNewBackupVersion), arg0)
-}
-
-// GetExistingBackup mocks base method.
-func (m *MockRepository) GetExistingBackup(arg0 string) (*core.Backup, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetExistingBackup", arg0)
-	ret0, _ := ret[0].(*core.Backup)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetExistingBackup indicates an expected call of GetExistingBackup.
-func (mr *MockRepositoryMockRecorder) GetExistingBackup(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExistingBackup", reflect.TypeOf((*MockRepository)(nil).GetExistingBackup), arg0)
-}
-
-// RestoreToVersion mocks base method.
-func (m *MockRepository) RestoreToVersion(arg0 *core.Backup, arg1 int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreToVersion", arg0, arg1)
+	ret := m.ctrl.Call(m, "ClearDump", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// RestoreToVersion indicates an expected call of RestoreToVersion.
-func (mr *MockRepositoryMockRecorder) RestoreToVersion(arg0, arg1 any) *gomock.Call {
+// ClearDump indicates an expected call of ClearDump.
+func (mr *MockRepositoryMockRecorder) ClearDump(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreToVersion", reflect.TypeOf((*MockRepository)(nil).RestoreToVersion), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearDump", reflect.TypeOf((*MockRepository)(nil).ClearDump), arg0)
 }
 
-// SaveBackup mocks base method.
-func (m *MockRepository) SaveBackup(arg0 *core.Backup) error {
+// CreateContentDump mocks base method.
+func (m *MockRepository) CreateContentDump() (core.DumpFile, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveBackup", arg0)
+	ret := m.ctrl.Call(m, "CreateContentDump")
+	ret0, _ := ret[0].(core.DumpFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateContentDump indicates an expected call of CreateContentDump.
+func (mr *MockRepositoryMockRecorder) CreateContentDump() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateContentDump", reflect.TypeOf((*MockRepository)(nil).CreateContentDump))
+}
+
+// CreateDbDump mocks base method.
+func (m *MockRepository) CreateDbDump() (core.DumpFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateDbDump")
+	ret0, _ := ret[0].(core.DumpFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateDbDump indicates an expected call of CreateDbDump.
+func (mr *MockRepositoryMockRecorder) CreateDbDump() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDbDump", reflect.TypeOf((*MockRepository)(nil).CreateDbDump))
+}
+
+// ListVersions mocks base method.
+func (m *MockRepository) ListVersions() ([]*core.Version, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListVersions")
+	ret0, _ := ret[0].([]*core.Version)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListVersions indicates an expected call of ListVersions.
+func (mr *MockRepositoryMockRecorder) ListVersions() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListVersions", reflect.TypeOf((*MockRepository)(nil).ListVersions))
+}
+
+// RemoveVersion mocks base method.
+func (m *MockRepository) RemoveVersion(arg0 core.VersionID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveVersion", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SaveBackup indicates an expected call of SaveBackup.
-func (mr *MockRepositoryMockRecorder) SaveBackup(arg0 any) *gomock.Call {
+// RemoveVersion indicates an expected call of RemoveVersion.
+func (mr *MockRepositoryMockRecorder) RemoveVersion(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveBackup", reflect.TypeOf((*MockRepository)(nil).SaveBackup), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveVersion", reflect.TypeOf((*MockRepository)(nil).RemoveVersion), arg0)
+}
+
+// SaveVersion mocks base method.
+func (m *MockRepository) SaveVersion(arg0 *core.Version) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveVersion", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveVersion indicates an expected call of SaveVersion.
+func (mr *MockRepositoryMockRecorder) SaveVersion(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveVersion", reflect.TypeOf((*MockRepository)(nil).SaveVersion), arg0)
 }
