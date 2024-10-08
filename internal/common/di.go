@@ -5,25 +5,24 @@ import (
 	"github.com/thomas-marquis/wordpress-simple-backup/internal/infrastructure"
 )
 
-func GetBackupApp(
-	siteName string,
-	versionsToKeep int,
-	dbUsername string,
-	dbPassword string,
-	dbContainer string,
-	wpContentPath string,
-	s3AccessKey string,
-	s3SecretKey string,
-	s3Region string,
-	s3Bucket string,
-) *application.BackupApplication {
-	s3, _ := infrastructure.NewS3Impl(s3AccessKey, s3SecretKey, s3Region, s3Bucket, "")
-	repo := infrastructure.NewBackupRepositoryImpl(
-		siteName,
-		infrastructure.NewWordPressImpl(wpContentPath),
-		s3,
-		infrastructure.NewMariaDbImpl(dbUsername, dbPassword, dbContainer),
+func GetBackupApp(cfg Config) (*application.BackupApplication, error) {
+	s3, err := infrastructure.NewS3Impl(
+		cfg.S3AccessKey,
+		cfg.S3SecretKey,
+		cfg.S3Region,
+		cfg.S3BucketName,
+		cfg.S3Endpoint,
 	)
-	app := application.NewBackupApplication(repo, versionsToKeep)
-	return app
+	if err != nil {
+		return nil, err
+	}
+	db := infrastructure.NewMariaDbImpl(cfg.DbUser, cfg.DbPassword, cfg.DbContainerName)
+	repo := infrastructure.NewBackupRepositoryImpl(
+		cfg.Host,
+		cfg.BackupTmpPath,
+		cfg.WpContentPath,
+		s3,
+		db,
+	)
+	return application.NewBackupApplication(repo, cfg.VersionToKeep), nil
 }

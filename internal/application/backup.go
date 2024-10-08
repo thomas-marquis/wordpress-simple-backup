@@ -2,7 +2,6 @@ package application
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/thomas-marquis/wordpress-simple-backup/internal/core"
 )
@@ -30,4 +29,14 @@ func (a *BackupApplication) Restore(backupName string, versionID int) error {
 
 func (a *BackupApplication) List() ([]core.Version, error) {
 	return []core.Version{}, errors.New("not implemented")
+}
+
+func versionListToString(versions []*core.Version) string {
+	var str string
+
+	for _, v := range versions {
+		str += v.String() + "\n"
+	}
+
+	return str
 }

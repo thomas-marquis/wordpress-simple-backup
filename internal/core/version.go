@@ -43,3 +43,21 @@ func (v *Version) ContentBackupFile() DumpFile {
 func (v *Version) AreLocalBackupsAllReady() bool {
 	return v.dbDump.Exists() && v.contentDump.Exists()
 }
+
+func (v *Version) RemoveDumps() error {
+	err := v.dbDump.Remove()
+	if err != nil {
+		return err
+	}
+	err = v.contentDump.Remove()
+	if err != nil {
+		return err
+	}
+	v.dbDump = DumpFile{}
+	v.contentDump = DumpFile{}
+	return nil
+}
+
+func (v *Version) String() string {
+	return "Version " + v.ID.String() + " created at " + v.CreatedAt.Format(time.RFC3339)
+}

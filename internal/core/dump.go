@@ -14,16 +14,20 @@ func NewDumpFile(path string) DumpFile {
 	}
 }
 
-func (d *DumpFile) Exists() bool {
+func (d DumpFile) Exists() bool {
 	_, err := os.Stat(d.Path)
 	return err == nil
 }
 
-func (d *DumpFile) FileName() (string, error) {
+func (d DumpFile) FileName() (string, error) {
 	i, err := os.Stat(d.Path)
 	if err != nil {
 		return "", err
 	}
 	n := i.Name()
 	return n, nil
+}
+
+func (d DumpFile) Remove() error {
+	return os.Remove(d.Path)
 }

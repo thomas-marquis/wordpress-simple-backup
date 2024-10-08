@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -162,11 +163,15 @@ func (s *S3Impl) ListFiles(prefix string) ([]string, error) {
 
 // ListFolders lists all folders in a directory and retruns their full path
 func (s *S3Impl) ListFolders(prefix string) ([]string, error) {
+	if prefix != "" && !strings.HasSuffix(prefix, "/") {
+		prefix += "/"
+	}
 	svc := s3.New(s.sess)
 
 	resp, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
-		Bucket: aws.String(s.bucket),
-		Prefix: aws.String(prefix),
+		Bucket:    aws.String(s.bucket),
+		Prefix:    aws.String(prefix),
+		Delimiter: aws.String("/"),
 	})
 	if err != nil {
 		return nil, err
@@ -174,6 +179,9 @@ func (s *S3Impl) ListFolders(prefix string) ([]string, error) {
 
 	var folders []string
 	for _, item := range resp.CommonPrefixes {
+		if *item.Prefix == prefix {
+			continue
+		}
 		folders = append(folders, *item.Prefix)
 	}
 
@@ -184,8 +192,9 @@ func (s *S3Impl) IsFolderExists(prefix string) (bool, error) {
 	svc := s3.New(s.sess)
 
 	resp, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
-		Bucket: aws.String(s.bucket),
-		Prefix: aws.String(prefix),
+		Bucket:    aws.String(s.bucket),
+		Prefix:    aws.String(prefix),
+		Delimiter: aws.String("/"),
 	})
 	if err != nil {
 		return false, err

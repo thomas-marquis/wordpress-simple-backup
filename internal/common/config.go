@@ -19,6 +19,7 @@ type Config struct {
 	S3BucketName    string `mapstructure:"SITE_BACKUP_S3_BUCKET_NAME"`
 	S3Region        string `mapstructure:"SITE_BACKUP_S3_REGION"`
 	S3Endpoint      string `mapstructure:"SITE_BACKUP_S3_ENDPOINT"`
+	VersionToKeep   int    `mapstructure:"SITE_BACKUP_VERSION_TO_KEEP"`
 }
 
 func LoadConfig(filename string) (Config, error) {

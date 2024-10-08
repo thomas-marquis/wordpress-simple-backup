@@ -1,7 +1,7 @@
 package infrautils
 
 import (
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -16,13 +16,10 @@ const (
 func ParseVersionDirName(key string) (*core.Version, error) {
 	key = strings.TrimSuffix(key, "/")
 	parts := strings.Split(key, "/")
-	if len(parts) != 2 {
-		return nil, errors.New("invalid version dir name")
-	}
 	versionPart := parts[len(parts)-1]
 	versionParts := strings.Split(versionPart, "x")
 	if len(versionParts) != 2 {
-		return nil, errors.New("invalid version dir name")
+		return nil, fmt.Errorf("invalid version dir name: %s", key)
 	}
 	id, err := strconv.Atoi(versionParts[0])
 	if err != nil {

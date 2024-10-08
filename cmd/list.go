@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thomas-marquis/wordpress-simple-backup/internal/common"
+	"github.com/thomas-marquis/wordpress-simple-backup/internal/infrastructure"
 )
 
 // listCmd represents the list command
@@ -17,19 +20,32 @@ var listCmd = &cobra.Command{
     `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("list called")
+		cfgPath := cmd.Flag("config").Value.String()
+		cfg, err := common.LoadConfig(cfgPath)
+		if err != nil {
+			fmt.Printf("Error loading config: %s\n", err)
+			os.Exit(1)
+		}
+
+		s3, err := infrastructure.NewS3Impl(cfg.S3AccessKey, cfg.S3SecretKey, cfg.S3Region, cfg.S3BucketName, cfg.S3Endpoint)
+		if err != nil {
+			fmt.Printf("Error creating S3 client: %s\n", err)
+			os.Exit(1)
+		}
+
+		content, err := s3.ListFolders("")
+		if err != nil {
+			fmt.Printf("Error downloading file: %s\n", err)
+			os.Exit(1)
+		}
+
+		for _, c := range content {
+			fmt.Println(c)
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	s3Cmd.AddCommand(listCmd)
+	common.SetupCommonArgs(listCmd)
 }

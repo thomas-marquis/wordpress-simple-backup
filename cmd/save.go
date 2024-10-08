@@ -12,43 +12,23 @@ import (
 var saveCmd = &cobra.Command{
 	Use:   "save",
 	Short: "Save the actual site as a new backup version.",
-	Long: `Save the actual site as a new backup version.
-
-    Usage:
-    wsb save --name mybackup --db-container mariadb-container --db-password azert123! --db-username toto --wp-content-path ./wp-content --s3-bucket mybucket --s3-region eu-west-1 --s3-access-key-id AKIA1234 --s3-secret-access-key 1234
-    `,
+	Long:  `Save the actual site as a new backup version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		argsVal, _ := common.ParseCommonArgs(cmd)
-
-		hasError := false
-		for _, arg := range common.CommonArgs {
-			if arg.Required {
-				if cmd.Flag(arg.Name).Value.String() == "" {
-					fmt.Printf("Error: %s is required\n", arg.Name)
-					hasError = true
-				}
-			}
-		}
-		if hasError {
+		cfgPath := cmd.Flag("config").Value.String()
+		cfg, err := common.LoadConfig(cfgPath)
+		if err != nil {
+			fmt.Printf("Error loading config: %s\n", err)
 			os.Exit(1)
 		}
 
-		app := common.GetBackupApp(
-			argsVal.Name,
-			10,
-			argsVal.DbUsername,
-			argsVal.DbPassword,
-			argsVal.DbContainer,
-			argsVal.WpContentPath,
-			argsVal.S3AccessKeyId,
-			argsVal.S3SecretAccessKey,
-			argsVal.S3Region,
-			argsVal.S3Bucket,
-		)
-
-		err := app.Save()
+		app, err := common.GetBackupApp(cfg)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error getting backup app: %s\n", err)
+			os.Exit(1)
+		}
+
+		if err := app.Save(); err != nil {
+			fmt.Printf("Error saving backup: %s\n", err)
 			os.Exit(1)
 		}
 	},
@@ -56,4 +36,5 @@ var saveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(saveCmd)
+	common.SetupCommonArgs(saveCmd)
 }
