@@ -113,7 +113,9 @@ func (b *BackupRepositoryImpl) SaveVersion(v *core.Version) error {
 	}
 	err = b.s3.UploadFile(cont.Path, contFileKey)
 	if err != nil {
-		// TODO: handle remove db file
+		if err := b.s3.DeleteFile(dbFileKey); err != nil {
+			return err
+		}
 		return err
 	}
 
@@ -121,11 +123,33 @@ func (b *BackupRepositoryImpl) SaveVersion(v *core.Version) error {
 }
 
 func (b *BackupRepositoryImpl) RemoveVersion(vid core.VersionID) error {
+	v, err := b.getVersion(vid)
+	if err != nil {
+		return err
+	}
+	dirKey := infrautils.FormatVersionDirName(v)
+
+	if err := b.s3.DeleteFolder(dirKey); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (b *BackupRepositoryImpl) ClearDump(d core.DumpFile) error {
 	return d.Remove()
+}
+
+func (b *BackupRepositoryImpl) getVersion(v core.VersionID) (*core.Version, error) {
+	versions, err := b.ListVersions()
+	if err != nil {
+		return nil, err
+	}
+	for _, ver := range versions {
+		if ver.ID == v {
+			return ver, nil
+		}
+	}
+	return nil, ErrBackupNotFound
 }
 
 func (b *BackupRepositoryImpl) getContentArchiveFileName() string {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/thomas-marquis/wordpress-simple-backup/internal/common"
-	"github.com/thomas-marquis/wordpress-simple-backup/internal/infrastructure"
 )
 
 // listCmd represents the list command
@@ -27,25 +26,26 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		s3, err := infrastructure.NewS3Impl(cfg.S3AccessKey, cfg.S3SecretKey, cfg.S3Region, cfg.S3BucketName, cfg.S3Endpoint)
+		app, err := common.GetBackupApp(cfg)
 		if err != nil {
-			fmt.Printf("Error creating S3 client: %s\n", err)
+			fmt.Printf("Error getting backup app: %s\n", err)
 			os.Exit(1)
 		}
 
-		content, err := s3.ListFolders("")
+		versions, err := app.List()
 		if err != nil {
-			fmt.Printf("Error downloading file: %s\n", err)
+			fmt.Printf("Error listing versions: %s\n", err)
 			os.Exit(1)
 		}
 
-		for _, c := range content {
-			fmt.Println(c)
+		fmt.Println("Existing versions:")
+		for _, v := range versions {
+			fmt.Println(v.String())
 		}
 	},
 }
 
 func init() {
-	s3Cmd.AddCommand(listCmd)
+	rootCmd.AddCommand(listCmd)
 	common.SetupCommonArgs(listCmd)
 }

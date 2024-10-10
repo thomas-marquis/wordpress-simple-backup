@@ -27,10 +27,6 @@ func (a *BackupApplication) Restore(backupName string, versionID int) error {
 	return errors.New("not implemented")
 }
 
-func (a *BackupApplication) List() ([]core.Version, error) {
-	return []core.Version{}, errors.New("not implemented")
-}
-
 func versionListToString(versions []*core.Version) string {
 	var str string
 

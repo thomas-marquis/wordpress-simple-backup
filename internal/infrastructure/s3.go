@@ -163,9 +163,7 @@ func (s *S3Impl) ListFiles(prefix string) ([]string, error) {
 
 // ListFolders lists all folders in a directory and retruns their full path
 func (s *S3Impl) ListFolders(prefix string) ([]string, error) {
-	if prefix != "" && !strings.HasSuffix(prefix, "/") {
-		prefix += "/"
-	}
+	prefix = s.formatFolderKey(prefix)
 	svc := s3.New(s.sess)
 
 	resp, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
@@ -201,4 +199,60 @@ func (s *S3Impl) IsFolderExists(prefix string) (bool, error) {
 	}
 
 	return len(resp.CommonPrefixes) > 0, nil
+}
+
+func (s *S3Impl) DeleteFolder(prefix string) error {
+	prefix = s.formatFolderKey(prefix)
+	svc := s3.New(s.sess)
+
+	resp, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+		Bucket: aws.String(s.bucket),
+		Prefix: aws.String(prefix),
+	})
+	if err != nil {
+		return err
+	}
+
+	var keys []string
+	for _, item := range resp.Contents {
+		keys = append(keys, *item.Key)
+	}
+
+	if len(keys) > 0 {
+		_, err = svc.DeleteObjects(&s3.DeleteObjectsInput{
+			Bucket: aws.String(s.bucket),
+			Delete: &s3.Delete{
+				Objects: make([]*s3.ObjectIdentifier, len(keys)),
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *S3Impl) DeleteFile(key string) error {
+	svc := s3.New(s.sess)
+	return s.deleteFile(svc, key)
+}
+
+func (s *S3Impl) deleteFile(scv *s3.S3, key string) error {
+	_, err := scv.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *S3Impl) formatFolderKey(key string) string {
+	if key != "" && !strings.HasSuffix(key, "/") {
+		key += "/"
+	}
+	return key
 }
