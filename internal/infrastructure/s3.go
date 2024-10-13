@@ -219,10 +219,16 @@ func (s *S3Impl) DeleteFolder(prefix string) error {
 	}
 
 	if len(keys) > 0 {
+		objs := make([]*s3.ObjectIdentifier, len(keys))
+		for i, key := range keys {
+			objs[i] = &s3.ObjectIdentifier{
+				Key: aws.String(key),
+			}
+		}
 		_, err = svc.DeleteObjects(&s3.DeleteObjectsInput{
 			Bucket: aws.String(s.bucket),
 			Delete: &s3.Delete{
-				Objects: make([]*s3.ObjectIdentifier, len(keys)),
+				Objects: objs,
 			},
 		})
 		if err != nil {

@@ -19,8 +19,7 @@ func (a *BackupApplication) Save() error {
 		return fmt.Errorf("the dump file %s does not exist", contentDump.Path)
 	}
 	defer func() {
-		err := a.repo.ClearDump(contentDump)
-		if err != nil {
+		if err := a.repo.ClearDump(contentDump); err != nil {
 			fmt.Printf("an error occurred when clearing content dump: %v", err)
 		}
 	}()
@@ -35,8 +34,7 @@ func (a *BackupApplication) Save() error {
 		return fmt.Errorf("the dump file %s does not exist", dbDump.Path)
 	}
 	defer func() {
-		err := a.repo.ClearDump(dbDump)
-		if err != nil {
+		if err := a.repo.ClearDump(dbDump); err != nil {
 			fmt.Printf("an error occurred when clearing db dump: %v", err)
 		}
 	}()
@@ -58,8 +56,7 @@ func (a *BackupApplication) Save() error {
 	logger.Printf("Creating new version: %s", newVersion.String())
 
 	logger.Printf("Saving new version...")
-	err = a.repo.SaveVersion(newVersion)
-	if err != nil {
+	if err = a.repo.SaveVersion(newVersion); err != nil {
 		return errors.New("an error occurred when saving version")
 	}
 	logger.Printf("New version saved")
@@ -70,9 +67,8 @@ func (a *BackupApplication) Save() error {
 		nbVersionsToRemove := len(versions) - a.versionsToKeep
 		logger.Printf("Too many versions are stored, removing the %d oldest ones...", nbVersionsToRemove)
 		for i := 0; i < nbVersionsToRemove; i++ {
-			err = a.repo.RemoveVersion(versions[i].ID)
-			if err != nil {
-				return errors.New("an error occurred when removing version")
+			if err = a.repo.RemoveVersion(versions[i].ID); err != nil {
+				return fmt.Errorf("an error occurred when removing version: %s", err)
 			}
 		}
 		logger.Printf("Old versions removed")

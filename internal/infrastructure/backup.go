@@ -127,7 +127,7 @@ func (b *BackupRepositoryImpl) RemoveVersion(vid core.VersionID) error {
 	if err != nil {
 		return err
 	}
-	dirKey := infrautils.FormatVersionDirName(v)
+	dirKey := b.siteName + "/" + infrautils.FormatVersionDirName(v)
 
 	if err := b.s3.DeleteFolder(dirKey); err != nil {
 		return err
@@ -139,13 +139,13 @@ func (b *BackupRepositoryImpl) ClearDump(d core.DumpFile) error {
 	return d.Remove()
 }
 
-func (b *BackupRepositoryImpl) getVersion(v core.VersionID) (*core.Version, error) {
+func (b *BackupRepositoryImpl) getVersion(vid core.VersionID) (*core.Version, error) {
 	versions, err := b.ListVersions()
 	if err != nil {
 		return nil, err
 	}
 	for _, ver := range versions {
-		if ver.ID == v {
+		if ver.ID == vid {
 			return ver, nil
 		}
 	}
